@@ -21,44 +21,44 @@ foreach (var item in stringList)  // foreach 테스트
 {
     Console.WriteLine(item);
 }
-// 검, 활, 방패, 물약
+//검, 활, 방패, 물약
 
-// GameItem 리스트 테스트
-Console.WriteLine("\n=== 게임 아이템 리스트 테스트 ===");
-var inventory = new MyList<GameItem>();
+//// GameItem 리스트 테스트
+//Console.WriteLine("\n=== 게임 아이템 리스트 테스트 ===");
+//var inventory = new MyList<GameItem>();
 
-var sword = new GameItem("강철검", 10);
-var armor = new GameItem("미스릴 갑옷", 20);
-var potion = new GameItem("힐링 포션", 5);
+//var sword = new GameItem("강철검", 10);
+//var armor = new GameItem("미스릴 갑옷", 20);
+//var potion = new GameItem("힐링 포션", 5);
 
-inventory.Add(sword);
-inventory.Add(armor);
-inventory.Add(potion);
+//inventory.Add(sword);
+//inventory.Add(armor);
+//inventory.Add(potion);
 
-Console.WriteLine("현재 인벤토리:");
-foreach (var item in inventory)
-{
-    Console.WriteLine(item);
-}
+//Console.WriteLine("현재 인벤토리:");
+//foreach (var item in inventory)
+//{
+//    Console.WriteLine(item);
+//}
 
-Console.WriteLine($"\n강철검 보유 여부: {inventory.Contains(sword)}");  // True
+//Console.WriteLine($"\n강철검 보유 여부: {inventory.Contains(sword)}");  // True
 
-inventory.Clear();
-Console.WriteLine($"\n인벤토리 비운 후 아이템 개수: {inventory.Count}");  // 0
+//inventory.Clear();
+//Console.WriteLine($"\n인벤토리 비운 후 아이템 개수: {inventory.Count}");  // 0
 
-public class GameItem
-{
-    public string Name { get; }
-    public int Power { get; }
+//public class GameItem
+//{
+//    public string Name { get; }
+//    public int Power { get; }
 
-    public GameItem(string name, int power)
-    {
-        Name = name;
-        Power = power;
-    }
+//    public GameItem(string name, int power)
+//    {
+//        Name = name;
+//        Power = power;
+//    }
 
-    public override string ToString() => $"{Name} (Power: {Power})";
-}
+//    public override string ToString() => $"{Name} (Power: {Power})";
+//}
 
 
 public class MyList<T> : IList<T>
@@ -70,7 +70,8 @@ public class MyList<T> : IList<T>
         set { array[index] = (T)value; }
     }
 
-    public int Count => 4;
+    private int count = 0;
+    public int Count => count;
 
     public bool IsReadOnly => throw new NotImplementedException();
 
@@ -81,24 +82,29 @@ public class MyList<T> : IList<T>
 
     public void Add(T item)
     {
-        Array.Resize(ref array, Count * 2);
-        array[0] = item;
+        if (Count >= array.Length)
+        {
+            Array.Resize(ref array, array.Length * 2);
+        }
+     
+        array[Count] = item;
+        count++;
     }
 
     public void Clear()
     {
-        for (int i = 0; i < array.Length; i++)
+        for (int i = 0; i < Count; i++)
         {
             array[i] = default(T);
         }
-        array = default(T[]);
+        count= 0;
     }
 
     public bool Contains(T item)
     {
-        foreach (T search in array)
+        for(int i = 0; i< Count; i++)
         {
-            if (search.Equals(item))
+            if ( array[i].Equals(item))
                 return true;
         }
         return false;
@@ -107,8 +113,8 @@ public class MyList<T> : IList<T>
     public void CopyTo(T[] array, int arrayIndex)
     {
         if (array == null) throw new ArgumentNullException("array");
-        if (arrayIndex < 0) throw new ArgumentOutOfRangeException("index");
-        if (arrayIndex >= Count) throw new ArgumentOutOfRangeException("index");
+        if (arrayIndex < 0) throw new ArgumentOutOfRangeException("arrayIndex");
+        if (arrayIndex >= Count) throw new ArgumentOutOfRangeException("arrayIndex");
 
         for (int i = arrayIndex; i < array.Length; i++)
         {
@@ -118,12 +124,12 @@ public class MyList<T> : IList<T>
 
     public IEnumerator<T> GetEnumerator()
     {
-        return ((IEnumerable<T>)this).GetEnumerator();
+        return ((IEnumerable<T>)array).GetEnumerator();
     }
     public int IndexOf(T item)
     {
         int index;
-        for (index = 0; index < array.Length; index++)
+        for (index = 0; index < Count; index++)
         {
             if (array[index].Equals(item))
             {
@@ -132,28 +138,34 @@ public class MyList<T> : IList<T>
         }
         return index;
     }
-
     public void Insert(int index, T item)
     {
-        bool isInsert = false;
-        for (int i = 0; i < array.Length; ++i)
+        if (index > Count || index < 0)
         {
-            T temp = array[0];
-
-            if (i == index)
-            {
-                Array.Resize(ref array, Count*2);
-                array[i] = item;
-            }
-            array[i + 1] = array[i];
+            throw new ArgumentOutOfRangeException(nameof(index));
         }
+        if (Count == array.Length)
+        {
+            Array.Resize(ref array, array.Length * 2);
+        }
+        //만약 현재 카운트가 3이고 인덱스는 1
+
+        for (int i = Count; i > index; i--)
+        {
+            array[i] = array[i - 1];
+        }
+        // 검 활 방패 물약 ㅁ ㅁ
+        // 검 방패 방패 물약 
+
+        array[index] = item;
+        count++;
     }
 
     public bool Remove(T item)
     {
         bool result = false;
         if (item == null) throw new ArgumentNullException("item");
-        for (int i = 0; i < array.Length; ++i)
+        for (int i = 0; i < Count; ++i)
         {
             if (array[i].Equals(item))
             {
@@ -166,12 +178,12 @@ public class MyList<T> : IList<T>
     public void RemoveAt(int index)
     {
         if (index > Count || index < 0) return;
-        for (int i = index; i < array.Length - 1; ++i)
+        for (int i = index; i < Count; ++i)
         {
             if (i == index)
             {
                 array[i] = default(T);
-                Array.Resize<T>(ref array, array.Length - 1);
+                Array.Resize(ref array, array.Length - 1);
             }
             array[i] = array[i + 1];
         }
