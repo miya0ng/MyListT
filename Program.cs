@@ -1,12 +1,13 @@
 ﻿// 문자열 리스트 테스트
+using System;
 using System.Collections;
 
 Console.WriteLine("=== 문자열 리스트 테스트 ===");
 var stringList = new MyList<string>();
 
-//stringList.Add("검");
-//stringList.Add("방패");
-//stringList.Add("물약");
+stringList.Add("검");
+stringList.Add("방패");
+stringList.Add("물약");
 
 Console.WriteLine($"아이템 개수: {stringList.Count}");  // 3
 for (int i = 0; i < stringList.Count; i++)
@@ -63,30 +64,30 @@ public class GameItem
 public class MyList<T> : IList<T>
 {
     public T[]? array;
-
-    //var stringList = new MyList<string>();
-    //stringList[0] = (string)"";
     public T this[int index]
     {
         get { return array[index]; }
         set { array[index] = (T)value; }
     }
 
-    public int Count => array.Length;
+    public int Count => 4;
 
     public bool IsReadOnly => throw new NotImplementedException();
 
+    public MyList()
+    {
+        array = new T[4];
+    }
+
     public void Add(T item)
     {
-        array = new T[Count + 1];
-        int index = 0;
-        array[index] = item;
-        index++;
+        Array.Resize(ref array, Count * 2);
+        array[0] = item;
     }
 
     public void Clear()
     {
-        for (int i = 0; i < Count; i++)
+        for (int i = 0; i < array.Length; i++)
         {
             array[i] = default(T);
         }
@@ -109,7 +110,7 @@ public class MyList<T> : IList<T>
         if (arrayIndex < 0) throw new ArgumentOutOfRangeException("index");
         if (arrayIndex >= Count) throw new ArgumentOutOfRangeException("index");
 
-        for (int i = arrayIndex; i < Count; i++)
+        for (int i = arrayIndex; i < array.Length; i++)
         {
             this.array[i] = array[i];
         }
@@ -122,7 +123,7 @@ public class MyList<T> : IList<T>
     public int IndexOf(T item)
     {
         int index;
-        for (index = 0; index < Count; index++)
+        for (index = 0; index < array.Length; index++)
         {
             if (array[index].Equals(item))
             {
@@ -135,34 +136,43 @@ public class MyList<T> : IList<T>
     public void Insert(int index, T item)
     {
         bool isInsert = false;
-        for (int i = 0; i < Count; ++i)
+        for (int i = 0; i < array.Length; ++i)
         {
             T temp = array[0];
 
             if (i == index)
             {
-                //크기 한 칸 늘리기
-                //?
-                //삽입하기
-                temp = array[i];
-                array[index] = item;
-
+                Array.Resize(ref array, Count*2);
+                array[i] = item;
             }
-            //뒤로 밀기
-            array[i + 1] = array[i];//@   
+            array[i + 1] = array[i];
         }
     }
 
     public bool Remove(T item)
     {
-        throw new NotImplementedException();
+        bool result = false;
+        if (item == null) throw new ArgumentNullException("item");
+        for (int i = 0; i < array.Length; ++i)
+        {
+            if (array[i].Equals(item))
+            {
+                result = true;
+            }
+        }
+        return result;
     }
 
     public void RemoveAt(int index)
     {
-        array[index] = default;
-        for (int i = index; i < Count -1 ; i++)
+        if (index > Count || index < 0) return;
+        for (int i = index; i < array.Length - 1; ++i)
         {
+            if (i == index)
+            {
+                array[i] = default(T);
+                Array.Resize<T>(ref array, array.Length - 1);
+            }
             array[i] = array[i + 1];
         }
     }
