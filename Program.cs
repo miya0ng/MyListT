@@ -66,14 +66,18 @@ public class MyList<T> : IList<T>
     public T[]? array;
     public T this[int index]
     {
-        get { return array[index]; }
-        set { array[index] = (T)value; }
+        get { 
+            if (index < 0 || index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
+            return array[index]; }
+        set {
+            if (index < 0 || index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
+            array[index] = (T)value; }
     }
 
     private int count = 0;
     public int Count => count;
 
-    public bool IsReadOnly => throw new NotImplementedException();
+    public bool IsReadOnly => false;
 
     public MyList()
     {
@@ -124,7 +128,10 @@ public class MyList<T> : IList<T>
 
     public IEnumerator<T> GetEnumerator()
     {
-        return ((IEnumerable<T>)array).GetEnumerator();
+        for (int i = 0; i < Count; i++)
+        {
+            yield return array[i];
+        }
     }
     public int IndexOf(T item)
     {
@@ -163,16 +170,11 @@ public class MyList<T> : IList<T>
 
     public bool Remove(T item)
     {
-        bool result = false;
         if (item == null) throw new ArgumentNullException("item");
-        for (int i = 0; i < Count; ++i)
-        {
-            if (array[i].Equals(item))
-            {
-                result = true;
-            }
-        }
-        return result;
+        if (!Contains(item)) return false;
+
+        RemoveAt(IndexOf(item));
+        return true;
     }
 
     public void RemoveAt(int index)
@@ -183,7 +185,7 @@ public class MyList<T> : IList<T>
             if (i == index)
             {
                 array[i] = default(T);
-                Array.Resize(ref array, array.Length - 1);
+                count--;
             }
             array[i] = array[i + 1];
         }
