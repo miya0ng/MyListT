@@ -45,3 +45,17 @@ Console.WriteLine($"\n강철검 보유 여부: {inventory.Contains(sword)}");  /
 
 inventory.Clear();
 Console.WriteLine($"\n인벤토리 비운 후 아이템 개수: {inventory.Count}");  // 0
+
+public class GameItem
+{
+    public string Name { get; }
+    public int Power { get; }
+
+    public GameItem(string name, int power)
+    {
+        Name = name;
+        Power = power;
+    }
+
+    public override string ToString() => $"{Name} (Power: {Power})";
+}

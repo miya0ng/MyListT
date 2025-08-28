@@ -1,19 +1,5 @@
-﻿
-public class GameItem
-{
-    public string Name { get; }
-    public int Power { get; }
-
-    public GameItem(string name, int power)
-    {
-        Name = name;
-        Power = power;
-    }
-
-    public override string ToString() => $"{Name} (Power: {Power})";
-}
-
-
+﻿using System;
+using System.Collections;
 public class MyList<T> : IList<T>
 {
     public T[]? array;
